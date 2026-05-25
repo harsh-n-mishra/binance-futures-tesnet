@@ -1,10 +1,12 @@
+# feat: implement domain-based exception architecture
+
 class TradingBotError(Exception):
-    """Base exception for the trading bot."""
+    """Base exception for all trading bot errors."""
 
 
-# =========================
+# =========================================================
 # Configuration Exceptions
-# =========================
+# =========================================================
 
 class ConfigurationError(TradingBotError):
     """Base exception for configuration-related errors."""
@@ -15,12 +17,12 @@ class MissingEnvironmentVariableError(ConfigurationError):
 
 
 class InvalidEnvironmentError(ConfigurationError):
-    """Raised when an invalid environment is provided."""
+    """Raised when an invalid environment configuration is provided."""
 
 
-# =========================
+# =========================================================
 # Validation Exceptions
-# =========================
+# =========================================================
 
 class ValidationError(TradingBotError):
     """Base exception for validation-related errors."""
@@ -44,3 +46,31 @@ class InvalidQuantityError(ValidationError):
 
 class InvalidPriceError(ValidationError):
     """Raised when an order price is invalid."""
+
+
+# =========================================================
+# Binance Client Exceptions
+# =========================================================
+
+class BinanceClientError(TradingBotError):
+    """Base exception for Binance client-related errors."""
+
+
+class AuthenticationError(BinanceClientError):
+    """Raised when Binance authentication fails."""
+
+
+class NetworkError(BinanceClientError):
+    """Raised when a network-related error occurs."""
+
+
+class RequestTimeoutError(NetworkError):
+    """Raised when a Binance request times out."""
+
+
+class APIResponseError(BinanceClientError):
+    """Raised when Binance returns an invalid or failed API response."""
+
+
+class OrderPlacementError(BinanceClientError):
+    """Raised when order placement fails."""
