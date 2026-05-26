@@ -7,6 +7,10 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+from bot.client import BinanceFuturesClient
+from bot.config import load_settings
+from bot.orders import place_order
+
 from bot.models import OrderRequest
 from bot.validators import validate_order_request
 
@@ -160,6 +164,71 @@ def display_order_summary(
     console.print(table)
 
 
+def display_order_response(
+    response,
+) -> None:
+    """
+    Display normalized order response.
+    """
+
+    table = Table(
+        title="Order Response",
+        show_header=True,
+        header_style="bold green",
+    )
+
+    table.add_column(
+        "Field",
+        style="bold",
+    )
+
+    table.add_column(
+        "Value",
+    )
+
+    table.add_row(
+        "Order ID",
+        response.order_id,
+    )
+
+    table.add_row(
+        "Status",
+        response.status,
+    )
+
+    table.add_row(
+        "Executed Qty",
+        str(response.executed_qty),
+    )
+
+    table.add_row(
+        "Average Price",
+        (
+            str(response.avg_price)
+            if response.avg_price is not None
+            else "-"
+        ),
+    )
+
+    table.add_row(
+        "Symbol",
+        response.symbol,
+    )
+
+    table.add_row(
+        "Side",
+        response.side,
+    )
+
+    table.add_row(
+        "Type",
+        response.order_type,
+    )
+
+    console.print()
+    console.print(table)
+
+
 def display_success_panel(message: str) -> None:
     """
     Display success message panel.
@@ -247,9 +316,43 @@ def main() -> None:
 
         display_order_summary(order_request)
 
+        # =====================================================
+        # Client Initialization
+        # =====================================================
+
+        settings = load_settings()
+
+        client = BinanceFuturesClient(
+            settings
+        )
+
+        # =====================================================
+        # Connectivity Checks
+        # =====================================================
+
+        client.ping()
+
+        client.test_authentication()
+
+        # =====================================================
+        # Order Placement
+        # =====================================================
+
+        response = place_order(
+            order_request=order_request,
+            client=client,
+        )
+
+        # =====================================================
+        # Success Rendering
+        # =====================================================
+
         display_success_panel(
-            "Order request validated successfully.\n"
-            "Ready for Binance submission."
+            "Order placed successfully."
+        )
+
+        display_order_response(
+            response
         )
 
         sys.exit(0)
