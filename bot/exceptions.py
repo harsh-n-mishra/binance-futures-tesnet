@@ -1,5 +1,3 @@
-# feat: implement domain-based exception architecture
-
 class TradingBotError(Exception):
     """Base exception for all trading bot errors."""
 
