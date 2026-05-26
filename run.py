@@ -1,5 +1,5 @@
-import sys
 import logging
+import sys
 
 from cli import main as cli_main
 
@@ -22,7 +22,9 @@ def main() -> None:
 
         logger = logging.getLogger("run")
 
-        logger.info("Application starting...")
+        logger.info(
+            "Application starting..."
+        )
 
         # =========================
         # Load Configuration
