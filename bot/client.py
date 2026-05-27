@@ -69,7 +69,6 @@ class BinanceFuturesClient:
         # =================================================
 
         self.client.FUTURES_URL = (
-            # settings.base_url
             f"{settings.base_url}/fapi"
         )
 
@@ -103,32 +102,31 @@ class BinanceFuturesClient:
             )
 
             raise RequestTimeoutError(
-                "Connection timeout while "
-                "reaching Binance API."
+                "Request timed out while communicating with Binance."
             ) from error
 
         except ConnectionError as error:
             logger.error(
-                "Unable to connect to Binance API."
+                "Unable to connect to Binance Futures Testnet."
             )
 
             raise NetworkError(
-                "Unable to connect to Binance API."
+                "Unable to connect to Binance Futures Testnet."
             ) from error
 
         except BinanceRequestException as error:
             logger.error(
-                "Binance request error during ping: %s",
+                "Binance network request failed: %s",
                 error,
             )
 
             raise NetworkError(
-                "Binance network request failed."
+                "Unable to connect to Binance Futures Testnet."
             ) from error
 
         except Exception as error:
             logger.exception(
-                "Unexpected error during ping."
+                "Unexpected error during Binance connectivity check."
             )
 
             raise APIResponseError(
@@ -162,7 +160,7 @@ class BinanceFuturesClient:
             )
 
             raise AuthenticationError(
-                "Binance authentication failed."
+                "Invalid Binance API credentials."
             ) from error
 
         except Timeout as error:
@@ -171,16 +169,26 @@ class BinanceFuturesClient:
             )
 
             raise RequestTimeoutError(
-                "Authentication request timed out."
+                "Request timed out while communicating with Binance."
             ) from error
 
         except ConnectionError as error:
             logger.error(
-                "Network error during authentication."
+                "Unable to connect to Binance Futures Testnet."
             )
 
             raise NetworkError(
-                "Unable to connect to Binance API."
+                "Unable to connect to Binance Futures Testnet."
+            ) from error
+
+        except BinanceRequestException as error:
+            logger.error(
+                "Binance network request failed: %s",
+                error,
+            )
+
+            raise NetworkError(
+                "Unable to connect to Binance Futures Testnet."
             ) from error
 
         except Exception as error:
@@ -321,7 +329,7 @@ class BinanceFuturesClient:
 
         except BinanceAPIException as error:
             logger.error(
-                "Binance API order error: %s",
+                "Binance order submission failed: %s",
                 error,
             )
 
@@ -341,7 +349,7 @@ class BinanceFuturesClient:
                 or error.status_code == 401
             ):
                 raise AuthenticationError(
-                    "Binance authentication failed."
+                    "Invalid Binance API credentials."
                 ) from error
 
             # ============================================
@@ -349,8 +357,7 @@ class BinanceFuturesClient:
             # ============================================
 
             raise OrderPlacementError(
-                f"Order rejected by Binance: "
-                f"{error_message}"
+                f"Binance rejected order: {error_message}"
             ) from error
 
         # ================================================
@@ -363,26 +370,26 @@ class BinanceFuturesClient:
             )
 
             raise RequestTimeoutError(
-                "Order request timed out."
+                "Request timed out while communicating with Binance."
             ) from error
 
         except ConnectionError as error:
             logger.error(
-                "Network error during order submission."
+                "Unable to connect to Binance Futures Testnet."
             )
 
             raise NetworkError(
-                "Unable to connect to Binance API."
+                "Unable to connect to Binance Futures Testnet."
             ) from error
 
         except BinanceRequestException as error:
             logger.error(
-                "Binance request exception: %s",
+                "Binance network request failed: %s",
                 error,
             )
 
             raise NetworkError(
-                "Binance request failed."
+                "Unable to connect to Binance Futures Testnet."
             ) from error
 
         # ================================================

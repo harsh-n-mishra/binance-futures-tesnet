@@ -81,7 +81,3 @@ def load_settings() -> Settings:
         request_timeout=request_timeout,
         log_path=log_path,
     )
-
-
-# Global immutable settings object
-settings = load_settings()

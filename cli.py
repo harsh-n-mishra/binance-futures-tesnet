@@ -15,9 +15,13 @@ from bot.models import OrderRequest
 from bot.validators import validate_order_request
 
 from bot.exceptions import (
-    BinanceClientError,
-    ConfigurationError,
     ValidationError,
+    ConfigurationError,
+    AuthenticationError,
+    NetworkError,
+    RequestTimeoutError,
+    OrderPlacementError,
+    BinanceClientError,
 )
 
 
@@ -280,22 +284,27 @@ def display_success_panel(message: str) -> None:
     console.print(panel)
 
 
+# =========================================================
+# Error Rendering
+# =========================================================
+
 def display_error_panel(
     title: str,
     message: str,
 ) -> None:
     """
-    Display error message panel.
+    Display formatted error panel.
     """
 
-    panel = Panel(
-        f"[bold red]{message}[/bold red]",
-        title=title,
-        border_style="red",
-    )
-
     console.print()
-    console.print(panel)
+
+    console.print(
+        Panel(
+            message,
+            title=title,
+            border_style="red",
+        )
+    )
 
 
 # =========================================================
@@ -397,7 +406,7 @@ def main(settings) -> None:
 
     except ValidationError as error:
         logger.warning(
-            "Validation failed: %s",
+            "Validation failure: %s",
             error,
         )
 
@@ -414,7 +423,7 @@ def main(settings) -> None:
 
     except ConfigurationError as error:
         logger.error(
-            "Configuration error: %s",
+            "Configuration failure: %s",
             error,
         )
 
@@ -426,36 +435,104 @@ def main(settings) -> None:
         sys.exit(1)
 
     # =====================================================
-    # Binance/API Errors
+    # Authentication Errors
     # =====================================================
 
-    except BinanceClientError as error:
+    except AuthenticationError as error:
         logger.error(
-            "Binance client error: %s",
+            "Authentication failure: %s",
             error,
         )
 
         display_error_panel(
-            title="Binance API Error",
+            title="Authentication Error",
             message=str(error),
         )
 
         sys.exit(1)
 
     # =====================================================
-    # Unexpected Internal Errors
+    # Timeout Errors
+    # =====================================================
+
+    except RequestTimeoutError as error:
+        logger.error(
+            "Request timeout: %s",
+            error,
+        )
+
+        display_error_panel(
+            title="Timeout Error",
+            message=str(error),
+        )
+
+        sys.exit(1)
+
+    # =====================================================
+    # Network Errors
+    # =====================================================
+
+    except NetworkError as error:
+        logger.error(
+            "Network failure: %s",
+            error,
+        )
+
+        display_error_panel(
+            title="Network Error",
+            message=str(error),
+        )
+
+        sys.exit(1)
+
+    # =====================================================
+    # Order Placement Errors
+    # =====================================================
+
+    except OrderPlacementError as error:
+        logger.error(
+            "Order placement failure: %s",
+            error,
+        )
+
+        display_error_panel(
+            title="Order Placement Error",
+            message=str(error),
+        )
+
+        sys.exit(1)
+
+    # =====================================================
+    # Generic Binance Errors
+    # =====================================================
+
+    except BinanceClientError as error:
+        logger.error(
+            "Binance client failure: %s",
+            error,
+        )
+
+        display_error_panel(
+            title="Binance Client Error",
+            message=str(error),
+        )
+
+        sys.exit(1)
+
+    # =====================================================
+    # Unexpected Failures
     # =====================================================
 
     except Exception:
         logger.exception(
-            "Unexpected internal application error."
+            "Unexpected CLI failure."
         )
 
         display_error_panel(
-            title="Internal Error",
+            title="Unexpected Error",
             message=(
-                "Unexpected internal error occurred.\n"
-                "See logs for details."
+                "An unexpected internal error occurred.\n"
+                "See logs for additional details."
             ),
         )
 

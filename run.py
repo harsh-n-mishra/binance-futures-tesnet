@@ -1,6 +1,9 @@
 import logging
 import sys
 
+from rich.console import Console
+from rich.panel import Panel
+
 from cli import main as cli_main
 
 from bot.config import load_settings
@@ -9,9 +12,15 @@ from bot.logging_config import setup_logging
 
 
 # =========================================================
-# Bootstrap Entry Point
+# Rich Console
 # =========================================================
 
+console = Console()
+
+
+# =========================================================
+# Bootstrap Entry Point
+# =========================================================
 
 def main() -> None:
     """
@@ -67,6 +76,14 @@ def main() -> None:
             error,
         )
 
+        console.print(
+            Panel(
+                str(error),
+                title="Configuration Error",
+                border_style="red",
+            )
+        )
+
         sys.exit(1)
 
     except Exception:
@@ -74,6 +91,17 @@ def main() -> None:
             "trading_bot.run"
         ).exception(
             "Unexpected application startup error."
+        )
+
+        console.print(
+            Panel(
+                (
+                    "An unexpected startup error occurred.\n"
+                    "See logs for details."
+                ),
+                title="Unexpected Error",
+                border_style="red",
+            )
         )
 
         sys.exit(2)
