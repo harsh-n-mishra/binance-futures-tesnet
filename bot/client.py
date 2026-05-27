@@ -306,7 +306,7 @@ class BinanceFuturesClient:
                 "Binance order submitted successfully."
             )
 
-            logger.info(
+            logger.debug(
                 "Raw Binance response: %s",
                 response,
             )

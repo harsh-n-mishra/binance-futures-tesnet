@@ -89,7 +89,7 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--verbose",
         action="store_true",
-        help="Enable verbose debug logging",
+        help="Enable verbose debug logging.",
     )
 
     return parser.parse_args()
@@ -164,6 +164,40 @@ def display_order_summary(
     console.print(table)
 
 
+# =========================================================
+# Status Styling
+# =========================================================
+
+def style_order_status(
+    status: str,
+) -> Text:
+    """
+    Apply Rich styling to order status.
+    """
+
+    normalized_status = status.upper()
+
+    color_map = {
+        "FILLED": "green",
+        "NEW": "yellow",
+        "CANCELED": "red",
+    }
+
+    color = color_map.get(
+        normalized_status,
+        "white",
+    )
+
+    return Text(
+        normalized_status,
+        style=f"bold {color}",
+    )
+
+
+# =========================================================
+# Response Rendering
+# =========================================================
+
 def display_order_response(
     response,
 ) -> None:
@@ -193,7 +227,9 @@ def display_order_response(
 
     table.add_row(
         "Status",
-        response.status,
+        style_order_status(
+            response.status
+        ),
     )
 
     table.add_row(
@@ -266,7 +302,7 @@ def display_error_panel(
 # Main CLI Flow
 # =========================================================
 
-def main() -> None:
+def main(settings) -> None:
     """
     CLI application entry point.
     """
@@ -320,10 +356,8 @@ def main() -> None:
         # Client Initialization
         # =====================================================
 
-        settings = load_settings()
-
         client = BinanceFuturesClient(
-            settings
+            settings=settings,
         )
 
         # =====================================================
@@ -335,7 +369,7 @@ def main() -> None:
         client.test_authentication()
 
         # =====================================================
-        # Order Placement
+        # Order Submission
         # =====================================================
 
         response = place_order(
@@ -348,11 +382,11 @@ def main() -> None:
         # =====================================================
 
         display_success_panel(
-            "Order placed successfully."
+            "Binance Futures order submitted successfully."
         )
 
         display_order_response(
-            response
+            response=response,
         )
 
         sys.exit(0)
@@ -433,4 +467,5 @@ def main() -> None:
 # =========================================================
 
 if __name__ == "__main__":
-    main()
+    settings = load_settings()
+    main(settings=settings)

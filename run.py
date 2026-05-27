@@ -8,27 +8,34 @@ from bot.exceptions import ConfigurationError
 from bot.logging_config import setup_logging
 
 
+# =========================================================
+# Bootstrap Entry Point
+# =========================================================
+
+
 def main() -> None:
     """
     Application bootstrap entry point.
     """
 
+    verbose = "--verbose" in sys.argv
+
     try:
-        # =========================
+        # =================================================
         # Setup Logging
-        # =========================
+        # =================================================
 
-        setup_logging()
+        setup_logging(verbose=verbose)
 
-        logger = logging.getLogger("run")
+        logger = logging.getLogger("trading_bot.run")
 
         logger.info(
             "Application starting..."
         )
 
-        # =========================
+        # =================================================
         # Load Configuration
-        # =========================
+        # =================================================
 
         settings = load_settings()
 
@@ -46,14 +53,16 @@ def main() -> None:
             settings.base_url,
         )
 
-        # =========================
+        # =================================================
         # Launch CLI
-        # =========================
+        # =================================================
 
-        cli_main()
+        cli_main(settings=settings)
 
     except ConfigurationError as error:
-        logging.getLogger("run").error(
+        logging.getLogger(
+            "trading_bot.run"
+        ).error(
             "Configuration error during startup: %s",
             error,
         )
@@ -61,7 +70,9 @@ def main() -> None:
         sys.exit(1)
 
     except Exception:
-        logging.getLogger("run").exception(
+        logging.getLogger(
+            "trading_bot.run"
+        ).exception(
             "Unexpected application startup error."
         )
 
