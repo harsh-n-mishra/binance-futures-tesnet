@@ -216,18 +216,21 @@ class BinanceFuturesClient:
             "symbol": order_request.symbol,
             "side": order_request.side,
             "type": order_request.order_type,
-            "quantity": str(
-                order_request.quantity
-            ),
+            "quantity": str(order_request.quantity),
         }
 
-        # ================================================
-        # LIMIT Order Fields
-        # ================================================
-
         if order_request.order_type == "LIMIT":
-            payload["price"] = str(
-                order_request.price
+
+            payload["price"] = str(order_request.price)
+
+            payload["timeInForce"] = "GTC"
+
+        elif order_request.order_type == "STOP":
+
+            payload["price"] = str(order_request.price)
+
+            payload["stopPrice"] = str(
+                order_request.stop_price
             )
 
             payload["timeInForce"] = "GTC"

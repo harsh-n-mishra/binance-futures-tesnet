@@ -7,7 +7,10 @@ from typing import Optional
 # Order Request Model
 # =========================================================
 
-@dataclass(frozen=True, slots=True)
+@dataclass(
+    frozen=True,
+    slots=True,
+)
 class OrderRequest:
     """
     Represents a validated and normalized order request.
@@ -18,13 +21,17 @@ class OrderRequest:
     order_type: str
     quantity: Decimal
     price: Optional[Decimal] = None
+    stop_price: Optional[Decimal] = None
 
 
 # =========================================================
 # Order Response Model
 # =========================================================
 
-@dataclass(frozen=True, slots=True)
+@dataclass(
+    frozen=True,
+    slots=True,
+)
 class OrderResponse:
     """
     Represents a normalized Binance order response.

@@ -75,7 +75,7 @@ def parse_arguments() -> argparse.Namespace:
         "--type",
         required=True,
         dest="order_type",
-        help="Order type: MARKET or LIMIT",
+        help="Order type: MARKET, LIMIT, or STOP",
     )
 
     parser.add_argument(
@@ -87,7 +87,19 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--price",
         required=False,
-        help="Limit price (required for LIMIT orders)",
+        help=(
+            "Limit price "
+            "(required for LIMIT and STOP orders)"
+        ),
+    )
+
+    parser.add_argument(
+        "--stop-price",
+        required=False,
+        help=(
+            "Stop trigger price "
+            "(required for STOP orders)."
+        ),
     )
 
     parser.add_argument(
@@ -162,6 +174,13 @@ def display_order_summary(
             if order_request.price is not None
             else "-"
         ),
+    )
+
+    table.add_row(
+        "Stop Price",
+        str(order_request.stop_price)
+        if order_request.stop_price is not None
+        else "-"
     )
 
     console.print()
@@ -344,6 +363,7 @@ def main(settings) -> None:
             order_type=args.order_type,
             quantity=args.quantity,
             price=args.price,
+            stop_price=args.stop_price,
         )
 
         logger.info(

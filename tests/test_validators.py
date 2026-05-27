@@ -1,3 +1,5 @@
+import pytest
+
 from decimal import Decimal
 
 from bot.validators import (
@@ -12,6 +14,7 @@ from bot.exceptions import (
     InvalidQuantityError,
     InvalidSideError,
     InvalidSymbolError,
+    ValidationError,
 )
 
 
@@ -108,23 +111,71 @@ def test_limit_order_requires_price():
             quantity="0.01",
         )
 
-    except InvalidPriceError:
+    except ValidationError:
         assert True
 
     else:
         assert False
 
 
-def test_market_order_ignores_price():
-    request = validate_order_request(
-        symbol="BTCUSDT",
-        side="BUY",
-        order_type="MARKET",
+def test_validate_stop_order_success():
+    order_request = validate_order_request(
+        symbol="btcusdt",
+        side="buy",
+        order_type="stop",
         quantity="0.01",
-        price="50000",
+        price="65000",
+        stop_price="64900",
     )
 
-    assert request.price is None
+    assert order_request.order_type == "STOP"
+    assert order_request.price == Decimal("65000")
+    assert order_request.stop_price == Decimal("64900")
+
+
+def test_stop_order_requires_stop_price():
+    with pytest.raises(ValidationError):
+        validate_order_request(
+            symbol="BTCUSDT",
+            side="BUY",
+            order_type="STOP",
+            quantity="0.01",
+            price="65000",
+        )
+
+
+def test_market_order_cannot_have_price():
+    with pytest.raises(ValidationError):
+        validate_order_request(
+            symbol="BTCUSDT",
+            side="BUY",
+            order_type="MARKET",
+            quantity="0.01",
+            price="65000",
+        )
+
+
+def test_market_order_cannot_have_stop_price():
+    with pytest.raises(ValidationError):
+        validate_order_request(
+            symbol="BTCUSDT",
+            side="BUY",
+            order_type="MARKET",
+            quantity="0.01",
+            stop_price="64000",
+        )
+
+
+def test_limit_order_cannot_have_stop_price():
+    with pytest.raises(ValidationError):
+        validate_order_request(
+            symbol="BTCUSDT",
+            side="BUY",
+            order_type="LIMIT",
+            quantity="0.01",
+            price="65000",
+            stop_price="64000",
+        )
 
 
 # =========================================================
@@ -148,3 +199,5 @@ def test_order_request_model_creation():
     assert request.quantity == Decimal("0.01")
 
     assert request.price is None
+
+    assert request.stop_price is None
